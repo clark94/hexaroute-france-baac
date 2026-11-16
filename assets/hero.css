@@ -1,0 +1,16 @@
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#090e19;font-family:'DM Sans',sans-serif;color:#f3f9ff}
+.hero{position:relative;isolation:isolate;height:272px;overflow:hidden;background:radial-gradient(ellipse at 72% 30%,#1c6070 0,#10253d 44%,#101a2c 90%);border:1px solid #33536d;border-radius:21px;box-shadow:0 15px 42px #02081455}
+#terrain{position:absolute;width:100%;height:100%;right:0;top:0;opacity:.82;pointer-events:none}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,#101b2df7 0%,#10213be2 47%,#0b253533 100%)}
+.content{position:relative;z-index:1;padding:24px 32px;max-width:890px}
+.overline{font-size:10px;font-weight:800;color:#88eced;letter-spacing:.19em;display:flex;align-items:center;gap:10px}
+.pulse{height:7px;width:7px;border-radius:50%;background:#67ebd4;box-shadow:0 0 0 5px #63e1cc20;animation:pulse 2.1s ease-in-out infinite}
+.separator{color:#78a5ba}
+h1{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(29px,3.4vw,44px);letter-spacing:-.07em;line-height:1.12;margin:14px 0 8px}h1 span{background:linear-gradient(105deg,#86f0eb,#9bbdff);color:transparent;background-clip:text}
+p{font-size:13px;line-height:1.6;color:#bccee0;margin:0;max-width:660px}
+.badges{margin-top:17px;display:flex;flex-wrap:wrap;gap:7px}.pill{display:inline-flex;background:#17344c8c;border:1px solid #37617a;color:#c0f4ef;padding:6px 10px;border-radius:100px;font-size:9px;font-weight:800;letter-spacing:.045em}
+.corner{position:absolute;z-index:1;right:22px;top:15px;display:flex;flex-direction:column;text-align:right;opacity:.33;color:#91e7ea;letter-spacing:.08em;line-height:.9;font:800 25px 'Space Grotesk',sans-serif}
+.corner strong{font-size:33px;font-weight:800}.corner em{font-style:normal;font-size:13px;letter-spacing:.2em}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px #63e1cc14}50%{box-shadow:0 0 0 9px #63e1cc0c}}
+@media(max-width:650px){.hero{height:273px}.content{padding:21px}.corner{display:none}.shade{background:linear-gradient(90deg,#101b2de8 0%,#10213be0 70%,#0b25356e 100%)}.badges{gap:5px}.pill{font-size:8px;padding:5px 8px}h1{font-size:29px}p{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.pulse{animation:none}}

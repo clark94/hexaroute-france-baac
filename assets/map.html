@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" />
+<style>/*__MAP_STYLES__*/</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="map-heading">
+    <div>
+      <div class="eyebrow"><span class="signal"></span> ATLAS INTERACTIF <span class="dash">/</span> FRANCE</div>
+      <h2>Explorer les territoires <span>en détail.</span></h2>
+      <p>Accidents corporels géolocalisés · données BAAC · filtre global Streamlit appliqué</p>
+    </div>
+    <div class="sampling" aria-live="polite"><b id="sampling-count">—</b><span id="sampling-sub">points sur la carte</span></div>
+  </div>
+  <div class="toolbar" aria-label="Contrôles de la carte">
+    <div class="tabbar" role="group" aria-label="Mode d'affichage">
+      <button type="button" class="tool is-active" data-mode="clusters" aria-pressed="true"><span class="toolicon">◉</span> Regroupements</button>
+      <button type="button" class="tool" data-mode="points" aria-pressed="false"><span class="toolicon">⋮</span> Points</button>
+      <button type="button" class="tool" data-mode="heat" aria-pressed="false"><span class="toolicon">▦</span> Densité</button>
+    </div>
+    <div class="actions">
+      <label class="select-wrap" for="severity"><span>GRAVITÉ</span>
+        <select id="severity" aria-label="Filtrer par gravité">
+          <option value="all">Toutes</option>
+          <option value="Mortel">Mortel</option>
+          <option value="Avec blessé hospitalisé">Blessé hospitalisé</option>
+          <option value="Avec blessé léger">Blessé léger</option>
+          <option value="Indéterminée">Indéterminée</option>
+        </select>
+      </label>
+      <button type="button" class="icon-button" id="basemap-toggle" title="Changer le fond de carte" aria-label="Changer le fond de carte">◐</button>
+      <button type="button" class="icon-button" id="recenter" title="Recentrer sur les points" aria-label="Recentrer sur les points">⌖</button>
+    </div>
+  </div>
+  <div class="mapstage">
+    <div id="map" role="application" aria-label="Carte interactive des accidents corporels en France"></div>
+    <div id="map-notice" class="map-notice" role="status">Chargement de la carte interactive…</div>
+    <div class="map-legend" aria-label="Légende de gravité">
+      <div class="legend-title">TYPOLOGIE DE L'ACCIDENT</div>
+      <div><i style="--dot:#FB7185"></i> Mortel</div>
+      <div><i style="--dot:#FFCC7D"></i> Avec blessé hospitalisé</div>
+      <div><i style="--dot:#64D9EB"></i> Avec blessé léger</div>
+      <div><i style="--dot:#A4AEC6"></i> Indéterminée</div>
+      <small id="sample-disclaimer">Visualisation sur un échantillon stable de points.</small>
+    </div>
+    <div class="float-card" aria-live="polite">
+      <div class="float-caption">DANS LA SÉLECTION SUR LA CARTE</div>
+      <div class="float-number" id="visible-number">—</div>
+      <div class="float-sub" id="visible-label">points sélectionnés</div>
+      <div class="float-breakdown"><span>Accidents mortels</span><strong id="fatal-count">—</strong></div>
+      <div class="float-breakdown"><span>Départements</span><strong id="dep-count">—</strong></div>
+      <div class="float-line"><span id="active-mode">REGROUPEMENTS</span><span class="live-dot"></span></div>
+    </div>
+  </div>
+  <div class="map-footer"><span><span class="footer-dot"></span> Visualisation interactive Leaflet · JavaScript</span><span>© OpenStreetMap · © CARTO</span></div>
+</div>
+<script id="payload" type="application/json">__MAP_DATA_JSON__</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script>/*__MAP_SCRIPT__*/</script>
+</body>
+</html>
