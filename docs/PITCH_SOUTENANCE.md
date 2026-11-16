@@ -1,19 +1,21 @@
-# Pitch de démonstration – HexaRoute
+## Présentation du projet
 
-**Problème** : comment explorer à grande échelle les accidents corporels routiers français tout en évitant les erreurs de comptage liées aux jointures de données ?
+**HexaRoute** est un tableau de bord interactif consacré à l’analyse des accidents corporels de la circulation en France. Il s’appuie sur les données ouvertes BAAC, disponibles sur data.gouv.fr. Chaque millésime comprend quatre fichiers : caractéristiques, lieux, véhicules et usagers.
 
-**Source** : bases annuelles BAAC du ministère de l'Intérieur, via data.gouv.fr, quatre fichiers par année.
+### Préparation des données
 
-**Architecture** : téléchargement API et SHA256 → contrôle qualité et normalisation → agrégation des véhicules/usagers avant jointure → stockage analytique Parquet → SQL DuckDB / Snowflake → visualisation Streamlit.
+Un même accident peut impliquer plusieurs véhicules et plusieurs usagers. Une jointure directe entre les fichiers peut donc multiplier les lignes et fausser les comptages. Pour calculer les indicateurs au niveau de l’accident, le pipeline agrège les données des véhicules et des usagers par identifiant d’accident avant la jointure. Le détail des usagers est conservé séparément pour permettre leur analyse.
 
-**Démo (5 minutes)** :
+Le pipeline Python télécharge et normalise les fichiers, conserve leurs empreintes SHA-256 et produit des tables Parquet. Les données préparées ont également été chargées dans Snowflake, où des vues SQL fournissent des indicateurs nationaux, mensuels et départementaux.
 
-1. Montrer filtres annuels et départementaux ; expliquer le périmètre des accidents corporels.
-2. Faire varier les années et observer les tendances mensuelles et les heures.
-3. Ouvrir la carte et expliquer la différence entre points affichés et total enregistré.
-4. Montrer les usagers et la lecture prudente de la gravité.
-5. Afficher le tableau qualité, les doublons de clés, les limites et la traçabilité.
+### Résultats et fonctionnalités
 
-**Limites** : comptages ≠ risque routier ; absence de mesure d'exposition au trafic ; catégories de gravité administratives ; coordonnées manquantes possibles.
+Pour le millésime **2025**, le jeu analysé contient **55 093 accidents corporels** et **126 376 enregistrements d’usagers**. Parmi ces accidents, **3 323 sont mortels**, soit **6,0 %**. Le nombre de personnes tuées s’élève à **3 515**.
 
-**Perspectives** : rattachement à des données de trafic pour des taux comparables ; suivi de qualité automatisé ; stockage d'exécution en Snowflake ; déploiement permanent.
+L’application Streamlit permet d’explorer ces résultats par année, département, milieu et gravité. Elle présente les tendances mensuelles et horaires, une carte interactive, des analyses sur les usagers et des contrôles de qualité des données.
+
+### Limites et perspectives
+
+Les résultats décrivent les accidents corporels recensés. La carte peut afficher moins de points que le nombre total d’accidents sélectionnés, en raison de coordonnées manquantes ou d’un échantillonnage.
+
+Les volumes observés ne mesurent pas le risque routier. Une évolution du projet consisterait à intégrer des données de trafic, comme les kilomètres parcourus, afin de calculer des taux comparables entre territoires.
