@@ -1,6 +1,8 @@
 # HexaRoute — Analyse des accidents corporels de la route en France
 
-**HexaRoute** est un tableau de bord interactif qui explore les données ouvertes BAAC sur les accidents corporels de la circulation en France. Il permet d’étudier leur évolution dans le temps, leur gravité et leur répartition géographique, ainsi que les caractéristiques des usagers impliqués.
+**HexaRoute** est un tableau de bord interactif qui explore les données ouvertes BAAC sur les accidents corporels de la circulation en France. Il permet d’étudier leur évolution dans le temps, leur gravité, leur répartition géographique et les caractéristiques des usagers impliqués.
+
+**[Ouvrir la démonstration HexaRoute sur Streamlit](https://hexaroute-france-baac-d9dv4klugsq9l2cbuedx4w.streamlit.app/)**
 
 Le projet couvre la préparation des données en **Python**, leur stockage en **Parquet**, leur chargement dans **Snowflake** et leur visualisation dans **Streamlit**. La cartographie interactive utilise **Leaflet**.
 
@@ -9,17 +11,17 @@ Le projet couvre la préparation des données en **Python**, leur stockage en **
 | Onglet | Contenu |
 | --- | --- |
 | **Synthèse** | Nombre d’accidents corporels et mortels, de personnes tuées, de blessés hospitalisés et de véhicules impliqués. |
-| **Tendances** | Évolution mensuelle, répartition par gravité et analyse du nombre d’accidents par jour et par heure. |
+| **Tendances** | Évolution mensuelle, répartition par gravité et analyse par jour et par heure. |
 | **Carte & territoires** | Carte interactive des accidents géolocalisés et comparaison des volumes par département. |
 | **Usagers** | Exploration des données relatives aux personnes impliquées dans les accidents. |
 | **Qualité** | Informations sur la couverture et la qualité des données. |
 | **Sources & exports** | Présentation des sources et accès aux exports de l’application. |
 
-Les filtres permettent de sélectionner le **millésime**, le **département**, le **milieu** et la **gravité**. Les indicateurs et les visualisations s’actualisent selon le périmètre choisi.
+Les indicateurs et les visualisations s’actualisent selon les filtres sélectionnés : **année**, **département**, **milieu** et **gravité**.
 
 ## Données et architecture
 
-Les données proviennent des **Bulletins d’analyse des accidents corporels de la circulation (BAAC)**. Pour chaque millésime demandé, le pipeline récupère quatre fichiers : **Caractéristiques**, **Lieux**, **Véhicules** et **Usagers**. Un manifeste conserve les empreintes SHA-256 des fichiers téléchargés pour en assurer la traçabilité.
+Les données proviennent des **Bulletins d’analyse des accidents corporels de la circulation (BAAC)**. Pour chaque année demandée, le pipeline récupère quatre fichiers : **Caractéristiques**, **Lieux**, **Véhicules** et **Usagers**. Un manifeste conserve leurs empreintes SHA-256 pour assurer la traçabilité des fichiers téléchargés.
 
 ```mermaid
 flowchart LR
@@ -32,16 +34,16 @@ flowchart LR
 
 | Source d’analyse | Usage |
 | --- | --- |
-| **Parquet local** | Mode recommandé pour découvrir l’application sans compte Snowflake. |
-| **Snowflake** | Source facultative pour exploiter les données chargées dans l’entrepôt et consulter les vues directement en SQL. |
+| **Parquet local** | Lance le tableau de bord sans compte Snowflake. |
+| **Snowflake** | Permet d’exploiter les données chargées dans l’entrepôt et de consulter les vues en SQL. |
 
 Les fonds de carte nécessitent une connexion Internet.
 
 ## Démarrage local — Windows et PowerShell
 
-Dans VS Code, ouvrir le dossier qui contient `app.py` et `requirements.txt`, puis ouvrir un terminal PowerShell.
+Dans VS Code, ouvre le dossier qui contient `app.py` et `requirements.txt`, puis ouvre un terminal PowerShell.
 
-### 1. Créer l’environnement Python et installer les dépendances
+### 1. Créer l’environnement et installer les dépendances
 
 ```powershell
 py -3.12 -m venv .venv
@@ -55,7 +57,7 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe .\scripts\build_dataset.py --years 2025
 ```
 
-Le pipeline génère `data/processed/accidents.parquet` et `data/processed/usagers.parquet`. Si ces deux fichiers sont déjà présents et correspondent au millésime souhaité, passer directement au lancement.
+Le pipeline génère `data/processed/accidents.parquet` et `data/processed/usagers.parquet`. Si ces deux fichiers sont déjà présents et correspondent à l’année souhaitée, passe directement au lancement.
 
 ### 3. Lancer l’application
 
@@ -63,18 +65,18 @@ Le pipeline génère `data/processed/accidents.parquet` et `data/processed/usage
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Ouvrir l’adresse affichée dans le terminal, généralement [http://localhost:8501](http://localhost:8501), puis sélectionner **Parquet local** dans **Source des analyses**.
+Ouvre l’adresse affichée dans le terminal, généralement [http://localhost:8501](http://localhost:8501), puis sélectionne **Parquet local** dans **Source des analyses**.
 
 ## Utilisation avec Snowflake
 
-Pour activer le mode Snowflake, installer les dépendances supplémentaires et créer un fichier `.env` local à partir du modèle fourni :
+Snowflake est facultatif. Pour utiliser ce mode, installe les dépendances supplémentaires et crée un fichier `.env` local s’il n’existe pas déjà :
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-snowflake.txt
-Copy-Item .env.example .env
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-Ignorer la commande `Copy-Item` si le fichier `.env` existe déjà. Renseigner les paramètres de connexion dans `.env` et conserver ce fichier hors du dépôt Git.
+Renseigne les paramètres de connexion dans `.env`. Seul le modèle `.env.example` est destiné au dépôt GitHub.
 
 | Script SQL | Rôle |
 | --- | --- |
@@ -99,18 +101,18 @@ LIMIT 20;
 
 ## Déploiement
 
-Le point d’entrée Streamlit est `app.py`. L’environnement d’hébergement doit disposer de Python, des dépendances du projet et d’une source de données accessible.
+Le point d’entrée sur **Streamlit Community Cloud** est `app.py`. Les dépendances principales sont déclarées dans `requirements.txt`.
 
-- **Mode Parquet :** préparer les fichiers en amont et les rendre accessibles dans `data/processed/`.
+- **Mode Parquet :** rendre les fichiers préparés accessibles dans `data/processed/`.
 - **Mode Snowflake :** installer les dépendances supplémentaires et configurer les paramètres de connexion dans le gestionnaire de secrets de l’hébergement.
 
-Avant de partager une instance hébergée, vérifier le chargement des données, les filtres, les indicateurs, la carte et les exports.
+Après le déploiement, vérifier le chargement des données, les filtres, les indicateurs, la carte et les exports.
 
 ## Périmètre et limites
 
-- Les données BAAC couvrent les **accidents corporels recensés**. Elles excluent les accidents uniquement matériels.
-- Le **nombre d’accidents mortels** est distinct du **nombre de personnes tuées** : un même accident peut causer plusieurs décès.
-- Les indicateurs présentent des **volumes observés**. Sans données d’exposition, comme le trafic ou les kilomètres parcourus, ils ne permettent pas de comparer le risque d’accident entre territoires, horaires ou conditions météorologiques.
+- Le BAAC couvre les **accidents corporels recensés**. Les accidents uniquement matériels sont hors périmètre.
+- Le **nombre d’accidents mortels** et le **nombre de personnes tuées** sont deux indicateurs distincts : un même accident peut causer plusieurs décès.
+- Les graphiques présentent des **volumes observés**. Sans données de trafic ou de kilomètres parcourus, ils ne permettent pas de comparer le risque entre territoires, horaires ou conditions météorologiques.
 - La carte utilise les coordonnées exploitables et peut afficher un échantillon. Le nombre de points visibles peut donc être inférieur au nombre d’accidents sélectionnés.
 - Les analyses sont descriptives et ne constituent pas des prévisions.
 
