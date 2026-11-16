@@ -1,39 +1,25 @@
-# HexaRoute — Observatoire des accidents corporels de la route
+# HexaRoute — Analyse des accidents corporels de la route en France
 
-**HexaRoute** est un tableau de bord interactif qui permet d’explorer les accidents corporels de la circulation en France à partir des données ouvertes BAAC. Il présente leur évolution dans le temps, leur répartition géographique, leur gravité et les données relatives aux usagers impliqués.
+**HexaRoute** est un tableau de bord interactif qui explore les données ouvertes BAAC sur les accidents corporels de la circulation en France. Il permet d’étudier leur évolution dans le temps, leur gravité et leur répartition géographique, ainsi que les caractéristiques des usagers impliqués.
 
-Le projet couvre la préparation des données en **Python**, leur stockage en **Parquet**, leur chargement dans **Snowflake** et leur restitution dans **Streamlit**. La cartographie interactive est réalisée avec **Leaflet**.
-
-## Aperçu de l’application
-
-![Vue d’accueil du tableau de bord HexaRoute et indicateurs d’accidentalité](docs/images/hexaroute-accueil.png)
-
-Les captures de l’application présentent le millésime **2025** en mode **Parquet local**. Les requêtes exécutées dans Snowflake sont illustrées plus bas.
+Le projet couvre la préparation des données en **Python**, leur stockage en **Parquet**, leur chargement dans **Snowflake** et leur visualisation dans **Streamlit**. La cartographie interactive utilise **Leaflet**.
 
 ## Fonctionnalités
 
 | Onglet | Contenu |
 | --- | --- |
 | **Synthèse** | Nombre d’accidents corporels et mortels, de personnes tuées, de blessés hospitalisés et de véhicules impliqués. |
-| **Tendances** | Évolution mensuelle, répartition par gravité et analyse par jour et par heure. |
+| **Tendances** | Évolution mensuelle, répartition par gravité et analyse du nombre d’accidents par jour et par heure. |
 | **Carte & territoires** | Carte interactive des accidents géolocalisés et comparaison des volumes par département. |
 | **Usagers** | Exploration des données relatives aux personnes impliquées dans les accidents. |
 | **Qualité** | Informations sur la couverture et la qualité des données. |
-| **Sources & exports** | Présentation des sources et accès aux exports proposés par l’application. |
+| **Sources & exports** | Présentation des sources et accès aux exports de l’application. |
 
-Les filtres permettent de choisir le **millésime**, le **département**, le **milieu** et la **gravité**. Les indicateurs et les visualisations s’actualisent selon la sélection.
-
-### Quand les accidents sont-ils recensés ?
-
-![Carte thermique du nombre d’accidents par jour de la semaine et par heure](docs/images/hexaroute-carte-thermique.png)
-
-### Quels départements comptent le plus d’accidents dans la sélection ?
-
-![Classement des huit départements présentant les volumes d’accidents les plus élevés dans la sélection](docs/images/hexaroute-departements.png)
+Les filtres permettent de sélectionner le **millésime**, le **département**, le **milieu** et la **gravité**. Les indicateurs et les visualisations s’actualisent selon le périmètre choisi.
 
 ## Données et architecture
 
-Le projet utilise les données **BAAC** (*Bulletins d’analyse des accidents corporels de la circulation*). Pour chaque millésime sélectionné, le pipeline récupère les fichiers **Caractéristiques**, **Lieux**, **Véhicules** et **Usagers**. Il enregistre leurs empreintes SHA-256 dans un manifeste pour assurer la traçabilité des fichiers téléchargés.
+Les données proviennent des **Bulletins d’analyse des accidents corporels de la circulation (BAAC)**. Pour chaque millésime demandé, le pipeline récupère quatre fichiers : **Caractéristiques**, **Lieux**, **Véhicules** et **Usagers**. Un manifeste conserve les empreintes SHA-256 des fichiers téléchargés pour en assurer la traçabilité.
 
 ```mermaid
 flowchart LR
@@ -44,69 +30,66 @@ flowchart LR
     E --> D
 ```
 
-| Source | Usage |
+| Source d’analyse | Usage |
 | --- | --- |
-| **Parquet local** | Mode recommandé pour lancer le tableau de bord sans compte Snowflake. |
-| **Snowflake** | Source facultative pour analyser les données chargées dans l’entrepôt ou consulter les vues directement en SQL. |
+| **Parquet local** | Mode recommandé pour découvrir l’application sans compte Snowflake. |
+| **Snowflake** | Source facultative pour exploiter les données chargées dans l’entrepôt et consulter les vues directement en SQL. |
 
-Les fonds de la carte Leaflet nécessitent une connexion Internet.
+Les fonds de carte nécessitent une connexion Internet.
 
 ## Démarrage local — Windows et PowerShell
 
-Ouvrir dans VS Code le dossier qui contient `app.py`, puis exécuter les commandes suivantes dans PowerShell.
+Dans VS Code, ouvrir le dossier qui contient `app.py` et `requirements.txt`, puis ouvrir un terminal PowerShell.
 
-### 1. Installer les dépendances
+### 1. Créer l’environnement Python et installer les dépendances
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### 2. Télécharger et préparer le millésime 2025
+### 2. Télécharger et préparer les données 2025
 
 ```powershell
 .\.venv\Scripts\python.exe .\scripts\download_data.py --years 2025
 .\.venv\Scripts\python.exe .\scripts\build_dataset.py --years 2025
 ```
 
-Le pipeline génère `data/processed/accidents.parquet` et `data/processed/usagers.parquet`. Si ces fichiers sont déjà disponibles pour le millésime souhaité, passer directement au lancement.
+Le pipeline génère `data/processed/accidents.parquet` et `data/processed/usagers.parquet`. Si ces deux fichiers sont déjà présents et correspondent au millésime souhaité, passer directement au lancement.
 
-### 3. Lancer le tableau de bord
+### 3. Lancer l’application
 
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Ouvrir l’adresse affichée dans le terminal, généralement [http://localhost:8501](http://localhost:8501), puis sélectionner **Parquet local** comme source des analyses.
+Ouvrir l’adresse affichée dans le terminal, généralement [http://localhost:8501](http://localhost:8501), puis sélectionner **Parquet local** dans **Source des analyses**.
 
 ## Utilisation avec Snowflake
 
-Pour utiliser Snowflake, installer les dépendances de `requirements-snowflake.txt` et créer un fichier `.env` local à partir de `.env.example`. Renseigner les paramètres de connexion du compte et du warehouse. Garder le fichier `.env` et les identifiants hors du dépôt.
+Pour activer le mode Snowflake, installer les dépendances supplémentaires et créer un fichier `.env` local à partir du modèle fourni :
 
-| Script | Rôle |
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-snowflake.txt
+Copy-Item .env.example .env
+```
+
+Ignorer la commande `Copy-Item` si le fichier `.env` existe déjà. Renseigner les paramètres de connexion dans `.env` et conserver ce fichier hors du dépôt Git.
+
+| Script SQL | Rôle |
 | --- | --- |
 | [`snowflake_01_schema.sql`](sql/snowflake_01_schema.sql) | Crée la base `HEXAROUTE_DB`, le schéma `ANALYTICS` et les tables `ACCIDENTS` et `USAGERS`. |
-| [`snowflake_02_views.sql`](sql/snowflake_02_views.sql) | Crée les vues d’analyse des indicateurs nationaux, mensuels et départementaux. |
-| [`snowflake_03_checks.sql`](sql/snowflake_03_checks.sql) | Exécute les contrôles après le chargement. |
+| [`snowflake_02_views.sql`](sql/snowflake_02_views.sql) | Crée les vues d’indicateurs nationaux, mensuels et départementaux. |
+| [`snowflake_03_checks.sql`](sql/snowflake_03_checks.sql) | Vérifie les données après leur chargement. |
 
-Le chargement du **millésime 2025** a donné les volumes suivants :
+Le chargement du **millésime 2025** dans Snowflake a produit les volumes suivants :
 
 | Table | Lignes chargées |
 | --- | ---: |
 | `ACCIDENTS` | 55 093 |
 | `USAGERS` | 126 376 |
 
-### Exemples de requêtes exécutées
-
-**Indicateurs mensuels — accidents et personnes tuées**
-
-![Requête Snowflake et résultats mensuels sur les accidents et les personnes tuées en 2025](docs/images/snowflake-kpi-mensuels.png)
-
-**Analyse départementale — volumes d’accidents**
-
-![Graphique réalisé dans Snowflake à partir des volumes d’accidents par département en 2025](docs/images/snowflake-kpi-departements.png)
-
-Pour consulter les indicateurs nationaux dans une feuille SQL Snowflake :
+Pour consulter les indicateurs nationaux depuis une feuille SQL Snowflake :
 
 ```sql
 SELECT *
@@ -116,19 +99,19 @@ LIMIT 20;
 
 ## Déploiement
 
-Le point d’entrée de l’application est `app.py`. L’environnement d’hébergement doit disposer de Python, des dépendances de `requirements.txt` et d’une source de données accessible.
+Le point d’entrée Streamlit est `app.py`. L’environnement d’hébergement doit disposer de Python, des dépendances du projet et d’une source de données accessible.
 
-- **Parquet** : préparer les fichiers en amont et les rendre accessibles à l’application dans `data/processed/`.
-- **Snowflake** : installer également les dépendances Snowflake et configurer les paramètres de connexion dans le gestionnaire de secrets de l’hébergement.
+- **Mode Parquet :** préparer les fichiers en amont et les rendre accessibles dans `data/processed/`.
+- **Mode Snowflake :** installer les dépendances supplémentaires et configurer les paramètres de connexion dans le gestionnaire de secrets de l’hébergement.
 
 Avant de partager une instance hébergée, vérifier le chargement des données, les filtres, les indicateurs, la carte et les exports.
 
-## Périmètre et limites d’interprétation
+## Périmètre et limites
 
-- Le BAAC couvre les **accidents corporels recensés**. Les accidents uniquement matériels ne font pas partie de ce périmètre.
-- Le **nombre d’accidents mortels** et le **nombre de personnes tuées** sont deux indicateurs différents : un accident peut faire plusieurs victimes.
-- Les résultats décrivent des **volumes observés**. Sans données d’exposition, comme le trafic ou les kilomètres parcourus, ils ne permettent pas de comparer le risque entre territoires, horaires ou conditions météorologiques.
-- La carte s’appuie sur les coordonnées exploitables et peut afficher un échantillon. Le nombre de points visibles peut donc être inférieur au nombre total d’accidents sélectionnés.
+- Les données BAAC couvrent les **accidents corporels recensés**. Elles excluent les accidents uniquement matériels.
+- Le **nombre d’accidents mortels** est distinct du **nombre de personnes tuées** : un même accident peut causer plusieurs décès.
+- Les indicateurs présentent des **volumes observés**. Sans données d’exposition, comme le trafic ou les kilomètres parcourus, ils ne permettent pas de comparer le risque d’accident entre territoires, horaires ou conditions météorologiques.
+- La carte utilise les coordonnées exploitables et peut afficher un échantillon. Le nombre de points visibles peut donc être inférieur au nombre d’accidents sélectionnés.
 - Les analyses sont descriptives et ne constituent pas des prévisions.
 
 ## Auteur
